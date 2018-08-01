@@ -1,9 +1,8 @@
 public with sharing class WarehouseCalloutService {
 
     private static final String WAREHOUSE_URL = 'https://th-superbadge-apex.herokuapp.com/equipment';
-    
-    // complete this method to make the callout (using @future) to the
-    // REST endpoint and update equipment on hand.
+    public static List<Database.Error> errors = new List<Database.Error>();
+
     @future(callout=true)
     public static void runWarehouseEquipmentSync(){
         Http http = new Http();
@@ -22,13 +21,14 @@ public with sharing class WarehouseCalloutService {
            if (!sv.isSuccess()) {
               for (Database.Error err : sv.getErrors()) {
                  System.debug(err.getStatusCode() + ': ' + err.getMessage());
+				 errors.add(err);
               }
            } else {
               System.debug('Successfully updated ' + sv.getId());
            }
         }
     }
-    private static String replacer(String jsonString){
+    @TestVisible private static String replacer(String jsonString){
         return jsonString
             .replaceAll('replacement','Replacement_Part__c')
             .replaceAll('maintenanceperiod','Maintenance_Cycle__c')
